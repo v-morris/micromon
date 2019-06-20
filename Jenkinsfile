@@ -49,7 +49,7 @@ node {
       app = docker.build("digidarkdev/admin-server")
     }
 
-    dir("AdminServer"){
+    dir("DiscoveryServer"){
       app2 = docker.build("digidarkdev/discovery-server")
     }
   }
