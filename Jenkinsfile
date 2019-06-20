@@ -1,5 +1,6 @@
 node {
   def app
+  def app2
 
   stage("Clone repository"){
     /* clone the repository */
@@ -12,12 +13,21 @@ node {
       // set maven wrapper permissions
       sh "chmod 711 ./mvnw"
     }
+
+    dir("DiscoveryServer"){
+      // set maven wrapper permissions
+      sh "chmod 711 ./mvnw"
+    }
     
   }
 
   stage("Test"){
     /* run tests */
     dir("AdminServer"){
+      sh "./mvnw test"
+    }
+
+    dir("DiscoveryServer"){
       sh "./mvnw test"
     }
   }
@@ -27,17 +37,34 @@ node {
     /* build the project */
       sh "./mvnw clean install"
     }
+
+    dir("DiscoveryServer"){
+    /* build the project */
+      sh "./mvnw clean install"
+    }
   }
 
   stage("Build Image"){
     dir("AdminServer"){
       app = docker.build("digidarkdev/admin-server")
     }
+
+    dir("AdminServer"){
+      app2 = docker.build("digidarkdev/discovery-server")
+    }
   }
 
   stage("Push Image"){
     
     dir("AdminServer"){
+      /* push the image to docker hub */
+      docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
+        app.push("${env.BUILD_NUMBER}")
+        app.push("latest")
+      }
+    }
+
+    dir("DiscoveryServer"){
       /* push the image to docker hub */
       docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
         app.push("${env.BUILD_NUMBER}")
