@@ -17,16 +17,22 @@ node {
 
   stage("Test"){
     /* run tests */
-    sh "./mvnw test"
+    dir("AdminServer"){
+      sh "./mvnw test"
+    }
   }
 
   stage("Build Project"){
+    dir("AdminServer"){
     /* build the project */
-    sh "./mvnw clean install"
+      sh "./mvnw clean install"
+    }
   }
-
+  
   stage("Build Image"){
-    app = docker.build("digidarkdev/admin-server")
+    dir("AdminServer"){
+      app = docker.build("digidarkdev/admin-server")
+    }
   }
 
   stage("Push Image"){
