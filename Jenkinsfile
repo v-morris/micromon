@@ -61,7 +61,7 @@ stage("Push Image") {
         branch "master"
       }
       steps {
-        withDockerRegistry([ credentialsId: "docker-hub-credentials", url: "https://registry.hub.docker.com" ]) {
+        docker.withRegistry("", "docker-hub-credentials") {
           sh "docker push digidarkdev/AdminServer:latest"
           sh "docker push digidarkdev/DiscoveryServer:latest"
         }
@@ -69,7 +69,7 @@ stage("Push Image") {
     }
 
   // stage("Push Image"){
-    
+      
   //   dir("AdminServer"){
   //     /* push the image to docker hub */
   //     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
