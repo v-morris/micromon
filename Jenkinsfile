@@ -28,7 +28,7 @@ node {
       sh "./mvnw clean install"
     }
   }
-  
+
   stage("Build Image"){
     dir("AdminServer"){
       app = docker.build("digidarkdev/admin-server")
@@ -36,8 +36,14 @@ node {
   }
 
   stage("Push Image"){
-    /* push the image to docker hub */
-    sh "echo TODO"
+    
+    dir("AdminServer"){
+      /* push the image to docker hub */
+      docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
+        app.push("${env.BUILD_NUMBER}")
+        app.push("latest")
+      }
+    }
   }
 
 
