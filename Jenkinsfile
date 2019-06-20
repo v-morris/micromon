@@ -54,24 +54,48 @@ node {
     }
   }
 
-  stage("Push Image"){
+  // stage("Push Image"){
     
-    dir("AdminServer"){
-      /* push the image to docker hub */
-      docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
-        app.push("${env.BUILD_NUMBER}")
-        app.push("latest")
+  //   dir("AdminServer"){
+  //     /* push the image to docker hub */
+  //     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
+  //       app.push("${env.BUILD_NUMBER}")
+  //       app.push("latest")
+  //     }
+  //   }
+
+  //   dir("DiscoveryServer"){
+  //     /* push the image to docker hub */
+  //     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
+  //       app.push("${env.BUILD_NUMBER}")
+  //       app.push("latest")
+  //     }
+  //   }
+
+  // }
+
+
+ stage('Push Image') {
+      when {
+        branch 'master'
+      }
+      steps {
+        withDockerRegistry([ credentialsId: "docker-hub-credentials", url: "" ]) {
+          sh 'docker push digidarkdev/AdminServer:latest'
+          sh 'docker push digidarkdev/DiscoveryServer:latest'
+        }
       }
     }
 
-    dir("DiscoveryServer"){
-      /* push the image to docker hub */
-      docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
-        app.push("${env.BUILD_NUMBER}")
-        app.push("latest")
-      }
-    }
-  }
+
+
+
+
+
+
+
+
+
 
 
 }
