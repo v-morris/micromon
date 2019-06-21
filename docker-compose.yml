@@ -5,17 +5,10 @@ services:
     image: digidarkdev/admin-server
     ports:
       - 9000:9000
-    networks:
-      - spring-cloud-network
-    links:
-      - admin-server:admin-server
   discovery-server:
     container_name: discovery-server
     image: digidarkdev/discovery-server
     ports:
       - 8761:8761
-    networks:
-      - spring-cloud-network
-networks:
-  spring-cloud-network:
-    driver: bridge
+    links:
+      - admin-server:admin-server
