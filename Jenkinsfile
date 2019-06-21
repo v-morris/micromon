@@ -1,9 +1,8 @@
 // groovy language
-
 void theProcess(folder,image){
   def app
   script {
-    stage("permissions"){
+    stage("permissions") {
       dir(folder){
         sh "chmod 711 ./mvnw"
       }
@@ -13,42 +12,47 @@ void theProcess(folder,image){
         sh "./mvnw -T 1C install -DskipTests"
       }
     }
-
     stage("build"){
       dir(folder){
         app = docker.build("digidarkdev/"+image)
       }
     }
-
     stage("deploy"){
       dir(folder){
-        docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
+        docker.withRegistry("https://registry.hub.docker.com","docker-hub-credentials") {
           app.push("${env.BUILD_NUMBER}")
           app.push("latest")
         }
       }
     }
-
-
   }
 }
-
 pipeline {
-  agent any
-  stages("automation"){
-    parallel {
-      stage("AdminServer"){
-        theProcess("AdminServer","admin-server")
-      }
-      stage("DiscoveryServer"){
-        theProcess("DiscoveryServer","discovery-server")
-      }
-      stage("Pokemon"){
-        theProcess("Pokemon","pokemon-service")
-      }
-      stage("Trainer"){
-        theProcess("Trainer","trainer-service")
+  agent any 
+  stages {
+    stage("automation") {
+      parallel {
+        stage("AdminServer") {
+          steps {
+            theProcess("AdminServer","admin-server")
+          }
+        }
+        stage("DiscoveryServer") {
+          steps {
+            theProcess("DiscoveryServer","discovery-server")
+          }
+        }
+        stage("Pokemon") {
+          steps {
+            theProcess("Pokemon","pokemon-service")
+          }
+        }
+        stage("Trainer") {
+          steps {
+            theProcess("Trainer","trainer-service")
+          }
+        }
       }
     }
-  }
+  }  
 }
