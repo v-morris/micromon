@@ -54,19 +54,17 @@ node {
     }
   }
 
-
-  
-stage("Push Image") {
-      when {
-        branch "master"
-      }
-      steps {
-        docker.withRegistry("", "docker-hub-credentials") {
-          sh "docker push digidarkdev/AdminServer:latest"
-          sh "docker push digidarkdev/DiscoveryServer:latest"
-        }
-      }
-    }
+// stage("Push Image") {
+//       when {
+//         branch "master"
+//       }
+//       steps {
+//         docker.withRegistry("", "docker-hub-credentials") {
+//           sh "docker push digidarkdev/AdminServer:latest"
+//           sh "docker push digidarkdev/DiscoveryServer:latest"
+//         }
+//       }
+//     }
 
   stage("Push Image"){
       
