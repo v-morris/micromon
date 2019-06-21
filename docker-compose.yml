@@ -12,3 +12,10 @@ services:
       - 8761:8761
     links:
       - admin-server:admin-server
+  pokemon-service:
+    container_name: pokemon-service
+    image: digidarkdev/pokemon-service
+    ports:
+      - 8081:8080
+    links:
+      - admin-server:admin-server
