@@ -1,100 +1,54 @@
-node {
+// groovy language
+
+void theProcess(folder,image){
   def app
-  def app2
-
-  stage("Clone repository"){
-    /* clone the repository */
-    checkout scm
-  }
-
-  stage("Permissions"){
-    // change directory
-    dir("AdminServer"){
-      // set maven wrapper permissions
-      sh "chmod 711 ./mvnw"
+  script {
+    stage("permissions"){
+      dir(folder){
+        sh "chmod 711 ./mvnw"
+      }
     }
-
-    dir("DiscoveryServer"){
-      // set maven wrapper permissions
-      sh "chmod 711 ./mvnw"
-    }
-    
-  }
-
-  stage("Test"){
-    /* run tests */
-    dir("AdminServer"){
-      sh "./mvnw test"
-    }
-
-    dir("DiscoveryServer"){
-      sh "./mvnw test"
-    }
-  }
-
-  stage("Build Project"){
-    dir("AdminServer"){
-    /* build the project */
-      sh "./mvnw clean install"
-    }
-
-    dir("DiscoveryServer"){
-    /* build the project */
-      sh "./mvnw clean install"
-    }
-  }
-
-  stage("Build Image"){
-    dir("AdminServer"){
-      app = docker.build("digidarkdev/admin-server")
-    }
-
-    dir("DiscoveryServer"){
-      app2 = docker.build("digidarkdev/discovery-server")
-    }
-  }
-
-// stage("Push Image") {
-//       when {
-//         branch "master"
-//       }
-//       steps {
-//         docker.withRegistry("", "docker-hub-credentials") {
-//           sh "docker push digidarkdev/AdminServer:latest"
-//           sh "docker push digidarkdev/DiscoveryServer:latest"
-//         }
-//       }
-//     }
-
-  stage("Push Image"){
-      
-    dir("AdminServer"){
-      /* push the image to docker hub */
-      docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
-        app.push("${env.BUILD_NUMBER}")
-        app.push("latest")
+    stage("install"){
+      dir(folder){
+        sh "./mvnw -T 1C install -DskipTests"
       }
     }
 
-    dir("DiscoveryServer"){
-      /* push the image to docker hub */
-      docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
-        app2.push("${env.BUILD_NUMBER}")
-        app2.push("latest")
+    stage("build"){
+      dir(folder){
+        app = docker.build("digidarkdev/"+image)
+      }
+    }
+
+    stage("deploy"){
+      dir(folder){
+        docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials"){
+          app.push("${env.BUILD_NUMBER}")
+          app.push("latest")
+        }
+      }
+    }
+
+
+  }
+}
+
+pipeline {
+  agent any
+  stages("automation"){
+    parallel {
+      stage("AdminServer"){
+        theProcess("AdminServer","admin-server")
+      }
+      stage("DiscoveryServer"){
+        theProcess("DiscoveryServer","discovery-server")
+      }
+      stage("Pokemon"){
+        theProcess("Pokemon","pokemon-service")
+      }
+      stage("Trainer"){
+        theProcess("Trainer","trainer-service")
       }
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
